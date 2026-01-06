@@ -46,6 +46,15 @@ public class HomeController {
 		model.addAttribute("apisUrl", apisUrl);
 		return "public/Home";
 	}
+
+	@GetMapping("/test")
+	public String test(Model model,HttpSession session) {
+		logger.info("/test");
+		session.invalidate();
+		model.addAttribute("bean", new LoginModel());
+		model.addAttribute("apisUrl", apisUrl);
+		return "public/test";
+	}
 	
 	@PostMapping(value="/userLogin")
 	public String userLogin(@Valid @ModelAttribute("bean") LoginModel bean,BindingResult bindingResult,Model model,

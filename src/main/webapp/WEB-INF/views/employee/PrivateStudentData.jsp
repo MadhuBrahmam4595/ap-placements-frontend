@@ -125,11 +125,15 @@
     </script>
     <script>
 
-        document.getElementById("submitBtn").addEventListener("click", function () {
-            submitApplication();
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("submitBtn").addEventListener("click", function () {
+                submitApplication();
+            });
         });
 
         function submitApplication() {
+
+            event?.preventDefault();
 
             var form = document.getElementById("labForm1");
             var formData = new FormData();
@@ -257,7 +261,15 @@
 
                     <div class="col-md-2">
                         <label>Age</label>
-                        <input type="text" name="age" class="form-control">
+                        <input type="number"
+                               name="age"
+                               id="age"
+                               class="form-control"
+                               min="14"
+                               max="100"
+                               step="1"
+                               required>
+
                     </div>
 
                     <div class="col-md-3">
