@@ -23,7 +23,7 @@
     <script src="./bootstrap-5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/jquery-3.7.1.min.js"></script>
     <script src="./js/siteScript.js"></script>
-<%--    <script src="./js/CustomJs/EmployeeJs/EmployeRegistrationJs.js"></script>--%>
+    <%--    <script src="./js/CustomJs/EmployeeJs/EmployeRegistrationJs.js"></script>--%>
     <script
             src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <link rel="stylesheet"
@@ -40,7 +40,7 @@
 
             const casteSelect = document.getElementById("casteSelect");
 
-            fetch(baseUrl+"masterdata/getAllByOrderByCasteCategoryAsc")
+            fetch(baseUrl + "masterdata/getAllByOrderByCasteCategoryAsc")
                 .then(response => {
                     if (!response.ok) {
                         throw new Error("Failed to fetch caste list");
@@ -78,7 +78,7 @@
                     return; // no caste selected
                 }
 
-                const url = baseUrl+"masterdata/getByCasteMasterCasteIdOrderBySubCasteAsc?casteId=" + casteId;
+                const url = baseUrl + "masterdata/getByCasteMasterCasteIdOrderBySubCasteAsc?casteId=" + casteId;
 
                 fetch(url)
                     .then(response => {
@@ -139,6 +139,26 @@
                 return;
             }
 
+            qualifications = collectQualifications();
+
+            const experienceList = [];
+
+            document.querySelectorAll(".experience-row").forEach(row => {
+
+                const industryName = row.querySelector(".industryName").value.trim();
+
+                // skip empty rows
+                if (!industryName) return;
+
+                experienceList.push({
+                    industryName: industryName,
+                    designation: row.querySelector(".designation").value,
+                    fromDate: row.querySelector(".fromDate").value,
+                    toDate: row.querySelector(".toDate").value,
+                    yearsMonths: row.querySelector(".yearsMonths").value
+                });
+            });
+
             var form = document.getElementById("labForm1");
             var formData = new FormData();
 
@@ -165,13 +185,42 @@
                 mobile: form.mobile.value,
                 aadhar: form.aadhar.value,
                 email: form.email.value,
-                tradeApplied: form.tradeApplied.value   // AE, AW, etc.
+                tradeApplied: form.tradeApplied.value,   // AE, AW, etc.
+
+                // ========= EDUCATIONAL & TECHNICAL QUALIFICATIONS
+                qualifications: collectQualifications(),
+
+                // ===== PRESENT WORKING DETAILS =====
+                officeAddress: form.officeAddress.value,
+                employeeIdNumber: form.employeeIdNumber.value,
+                employerMobile: form.employerMobile.value,
+                employerEmail: form.employerEmail.value,
+                industryRegistrationDetails: form.industryRegistrationDetails.value,
+
+                // ===== ESTABLISHMENT & STATUTORY DETAILS =====
+                atsRegistered: form.atsRegistered.value,
+                msmeRegistered: form.msmeRegistered.value,
+                factoriesAct: form.factoriesAct.value,
+                shopsAct: form.shopsAct.value,
+
+                apprenticeActDate: form.apprenticeActDate.value,
+
+                experienceCert: form.experienceCert.value,
+                characterCert: form.characterCert.value,
+
+                gpfEpfNo: form.gpfEpfNo.value,
+                gpfEpfDate: form.gpfEpfDate.value,
+
+                esiNo: form.esiNo.value,
+                esiDate: form.esiDate.value,
+                workExperiences: experienceList
+
             };
 
             // Append JSON as Blob
             formData.append(
                 "data",
-                new Blob([JSON.stringify(data)], { type: "application/json" })
+                new Blob([JSON.stringify(data)], {type: "application/json"})
             );
 
             // Append photo file
@@ -247,11 +296,11 @@
 
             const mobile = document.getElementById("mobile").value.trim();
             const aadhar = document.getElementById("aadhar").value.trim();
-            const email  = document.getElementById("email").value.trim();
+            const email = document.getElementById("email").value.trim();
 
             const mobileRegex = /^[6-9]\d{9}$/;
             const aadharRegex = /^\d{12}$/;
-            const emailRegex  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
             if (!mobileRegex.test(mobile)) {
                 alert("Please enter a valid 10-digit mobile number");
@@ -272,6 +321,102 @@
         }
     </script>
 
+    <script>
+        function addQualification() {
+
+            const container = document.getElementById("qualificationRows");
+
+            const row = document.createElement("div");
+            row.className = "row m-1 border p-2 qualification-row";
+
+            row.innerHTML = `
+        <div class="col-md-2">
+            <input placeholder="From Year" class="form-control fromYear">
+        </div>
+        <div class="col-md-2">
+            <input placeholder="To Year" class="form-control toYear">
+        </div>
+        <div class="col-md-3">
+            <input placeholder="Institute" class="form-control instituteName">
+        </div>
+        <div class="col-md-2">
+            <input placeholder="Trade" class="form-control tradeName">
+        </div>
+        <div class="col-md-2">
+            <input placeholder="Exam" class="form-control examName">
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-danger" onclick="this.closest('.qualification-row').remove()">✕</button>
+        </div>
+        <div class="col-md-2 mt-1">
+            <input placeholder="Marks / GPA" class="form-control sscMarks">
+        </div>
+    `;
+            container.appendChild(row);
+        }
+
+        function collectQualifications() {
+
+            const rows = document.querySelectorAll(".qualification-row");
+            const qualifications = [];
+
+            rows.forEach(row => {
+                qualifications.push({
+                    fromYear: row.querySelector(".fromYear").value,
+                    toYear: row.querySelector(".toYear").value,
+                    instituteName: row.querySelector(".instituteName").value,
+                    tradeName: row.querySelector(".tradeName").value,
+                    examName: row.querySelector(".examName").value,
+                    sscMarks: row.querySelector(".sscMarks").value
+                });
+            });
+
+            return qualifications;
+        }
+
+
+    </script>
+
+    <script>
+        function addExperience() {
+
+            const row = document.createElement("div");
+            row.className = "row m-1 border p-2 experience-row";
+
+            row.innerHTML = `
+        <div class="col-md-3">
+            <input class="form-control industryName" placeholder="Industry Name">
+        </div>
+
+        <div class="col-md-2">
+            <input class="form-control designation" placeholder="Designation">
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" class="form-control fromDate">
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" class="form-control toDate">
+        </div>
+
+        <div class="col-md-2">
+            <input class="form-control yearsMonths" placeholder="Y/M">
+        </div>
+
+        <div class="col-md-1">
+            <button type="button"
+                    class="btn btn-danger"
+                    onclick="this.closest('.experience-row').remove()">
+                X
+            </button>
+        </div>
+    `;
+
+            document.getElementById("experienceContainer").appendChild(row);
+        }
+    </script>
+
 
 
 </head>
@@ -283,7 +428,7 @@
     <div align="center" style="text-decoration: underline; color: fuchsia; font-weight: bolder;">APPLICATION FORM FOR
         APPEARING AITT UNDER CTS AS PRIVATE CANDIDATE -2026
     </div>
-<%--    <form id="labForm1" enctype="multipart/form-data" method="aittForm">--%>
+    <%--    <form id="labForm1" enctype="multipart/form-data" method="aittForm">--%>
     <form id="labForm1" enctype="multipart/form-data" method="post">
 
         <!-- ================= PERSONAL DETAILS ================= -->
@@ -495,43 +640,49 @@
             <div class="card-body">
                 <div id="qualificationContainer">
 
-                    <div class="row m-1">
+                    <div class="row m-1 border p-2 qualification-row">
                         <div class="col-md-4">
                             <label>From Year</label>
-                            <input name="fromYear[]" class="form-control">
+                            <input class="form-control fromYear">
                         </div>
 
                         <div class="col-md-4">
                             <label>To Year</label>
-                            <input name="toYear[]" class="form-control">
+                            <input class="form-control toYear">
                         </div>
-
 
                         <div class="col-md-4">
                             <label>Institute Name</label>
-                            <input name="instituteName[]" class="form-control">
+                            <input class="form-control instituteName">
                         </div>
-                    </div>
-                    <div class="row m-1">
-                        <div class="col-md-4">
+
+                        <div class="col-md-4 mt-2">
                             <label>Trade</label>
-                            <input name="tradeName[]" class="form-control">
+                            <input class="form-control tradeName">
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-4 mt-2">
                             <label>Exam</label>
-                            <input name="examName[]" class="form-control">
-                        </div>
-                        <div class="col-md-3">
-                            <label>SSC Marks / GPA</label>
-                            <input name="sscMarks" class="form-control">
+                            <input class="form-control examName">
                         </div>
 
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-info mt-4">Add</button>
+                        <div class="col-md-3 mt-2">
+                            <label>SSC Marks / GPA</label>
+                            <input class="form-control sscMarks">
+                        </div>
+
+                        <div class="col-md-1 mt-4">
+                            <button type="button"
+                                    class="btn btn-info"
+                                    onclick="addQualification()">
+                                Add
+                            </button>
                         </div>
                     </div>
                 </div>
+
+                <div id="qualificationRows"></div>
+
             </div>
         </div>
 
@@ -571,7 +722,6 @@
 
             </div>
         </div>
-        <!-- ================= WORK EXPERIENCE ================= -->
         <div class="card mb-4 shadow-sm">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">WORK EXPERIENCE DETAILS</h5>
@@ -581,37 +731,45 @@
 
                 <div id="experienceContainer">
 
-                    <div class="row m-1">
+                    <!-- FIRST ROW (treated same as dynamic rows) -->
+                    <div class="row m-1 border p-2 experience-row">
+
                         <div class="col-md-3">
                             <label>Industry Name</label>
-                            <input name="industryName[]" class="form-control">
+                            <input class="form-control industryName">
                         </div>
 
                         <div class="col-md-2">
                             <label>Designation</label>
-                            <input name="designation[]" class="form-control">
+                            <input class="form-control designation">
                         </div>
 
                         <div class="col-md-2">
                             <label>From</label>
-                            <input type="date" name="fromDate[]" class="form-control">
+                            <input type="date" class="form-control fromDate">
                         </div>
 
                         <div class="col-md-2">
                             <label>To</label>
-                            <input type="date" name="toDate[]" class="form-control">
+                            <input type="date" class="form-control toDate">
                         </div>
 
                         <div class="col-md-2">
                             <label>Experience (Y/M)</label>
-                            <input name="yearsMonths[]" class="form-control">
+                            <input class="form-control yearsMonths">
                         </div>
 
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-info mt-4">Add</button>
+                        <div class="col-md-1 mt-4">
+                            <button type="button"
+                                    class="btn btn-info"
+                                    onclick="addExperience()">
+                                Add
+                            </button>
                         </div>
+
                     </div>
                 </div>
+
             </div>
         </div>
 
