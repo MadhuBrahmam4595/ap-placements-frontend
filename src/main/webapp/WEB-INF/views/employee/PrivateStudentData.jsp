@@ -135,11 +135,16 @@
 
             event?.preventDefault();
 
+            if (!validateInputs()) {
+                return;
+            }
+
             var form = document.getElementById("labForm1");
             var formData = new FormData();
 
             // Build JSON object
             var data = {
+                // =======PERSONAL DETAILS ====
                 category: form.category.value,
                 applicantName: form.applicantName.value,
                 fatherName: form.fatherName.value,
@@ -152,7 +157,15 @@
                 subCasteId: form.subcaste.value,
                 pwdFlag: form.pwdFlag.value,
                 pwdCategory: form.pwdCategory.value,
-                ewsFlag: form.ewsFlag.value
+                ewsFlag: form.ewsFlag.value,
+
+                // ===== ADDRESS & CONTACT DETAILS =====
+                permanentAddress: form.permanentAddress.value,
+                correspondenceAddress: form.correspondenceAddress.value,
+                mobile: form.mobile.value,
+                aadhar: form.aadhar.value,
+                email: form.email.value,
+                tradeApplied: form.tradeApplied.value   // AE, AW, etc.
             };
 
             // Append JSON as Blob
@@ -192,6 +205,74 @@
             });
         }
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const tradeSelect = document.getElementById("tradeSelect");
+
+            fetch(baseUrl + "masterdata/getAllTrades", {
+                method: "GET",
+                headers: {
+                    "Authorization": jwtToken,
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch trade list");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    data.forEach(item => {
+                        const option = document.createElement("option");
+                        option.value = item.tradeShort;   // AE, AW, etc.
+                        option.textContent = item.tradeName; // Advanced Welder
+                        tradeSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading trade data:", error);
+                });
+
+        });
+    </script>
+    <script>
+        function allowOnlyNumbers(event) {
+            event.target.value = event.target.value.replace(/\D/g, '');
+        }
+    </script>
+    <script>
+        function validateInputs() {
+
+            const mobile = document.getElementById("mobile").value.trim();
+            const aadhar = document.getElementById("aadhar").value.trim();
+            const email  = document.getElementById("email").value.trim();
+
+            const mobileRegex = /^[6-9]\d{9}$/;
+            const aadharRegex = /^\d{12}$/;
+            const emailRegex  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!mobileRegex.test(mobile)) {
+                alert("Please enter a valid 10-digit mobile number");
+                return false;
+            }
+
+            if (!aadharRegex.test(aadhar)) {
+                alert("Aadhaar number must be exactly 12 digits");
+                return false;
+            }
+
+            if (!emailRegex.test(email)) {
+                alert("Please enter a valid email address");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+
+
 
 </head>
 <body>
@@ -355,25 +436,51 @@
                 <div class="row m-1">
                     <div class="col-md-3">
                         <label>Mobile No</label>
-                        <input type="text" name="mobile" class="form-control">
+                        <input type="text"
+                               name="mobile"
+                               id="mobile"
+                               class="form-control"
+                               maxlength="10"
+                               pattern="[6-9][0-9]{9}"
+                               title="Enter a valid 10-digit Indian mobile number"
+                               required
+                               oninput="allowOnlyNumbers(event)">
+
                     </div>
 
                     <div class="col-md-3">
                         <label>Aadhar No</label>
-                        <input type="text" name="aadhar" class="form-control">
+                        <input type="text"
+                               name="aadhar"
+                               id="aadhar"
+                               class="form-control"
+                               maxlength="12"
+                               pattern="[0-9]{12}"
+                               title="Aadhaar number must be exactly 12 digits"
+                               required
+                               oninput="allowOnlyNumbers(event)"
+                               onpaste="return false;">
+
                     </div>
 
                     <div class="col-md-3">
                         <label>Email ID</label>
-                        <input type="email" name="email" class="form-control">
+                        <input type="email"
+                               name="email"
+                               id="email"
+                               class="form-control"
+                               maxlength="100"
+                               required>
+
                     </div>
 
                     <div class="col-md-3">
                         <label>Trade Applying For</label>
-                        <select name="tradeApplied" class="form-select">
+                        <select name="tradeApplied" id="tradeSelect" class="form-select">
                             <option value="">--SELECT--</option>
                         </select>
                     </div>
+
                 </div>
 
             </div>
