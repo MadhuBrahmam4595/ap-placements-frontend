@@ -229,6 +229,11 @@
                 formData.append("photo", photoFile);
             }
 
+            const submitBtn = document.getElementById("submitBtn");
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Submitting...";
+
+
             // jQuery AJAX call
             $.ajax({
                 type: "POST",
@@ -242,15 +247,34 @@
                 cache: false,
                 timeout: 600000,
                 success: function (id) {
-                    alert("Applicant saved successfully. ID: " + id);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Submit Application";
+
+                    showMessageModal(
+                        "Application Submitted",
+                        "Applicant saved successfully.<br><strong>Application ID:</strong> " + id,
+                        true
+                    );
                     form.reset();
                 },
                 error: function (xhr, status, error) {
-                    console.error("Status:", status);
-                    console.error("Error:", error);
-                    console.error("Response:", xhr.responseText);
-                    alert("Error while saving application");
+
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Submit Application";
+
+                    let errorMsg = "Error while saving application";
+
+                    if (xhr.responseText) {
+                        errorMsg += "<br><small>" + xhr.responseText + "</small>";
+                    }
+
+                    showMessageModal(
+                        "Submission Failed",
+                        errorMsg,
+                        false
+                    );
                 }
+
             });
         }
     </script>
@@ -415,6 +439,26 @@
 
             document.getElementById("experienceContainer").appendChild(row);
         }
+    </script>
+    <script>
+        function showMessageModal(title, message, isSuccess = true) {
+            const modalTitle = document.getElementById("messageModalTitle");
+            const modalBody = document.getElementById("messageModalBody");
+
+            modalTitle.textContent = title;
+            modalBody.innerHTML = message;
+
+            // Optional color handling
+            modalTitle.className = isSuccess
+                ? "modal-title text-success"
+                : "modal-title text-danger";
+
+            const modal = new bootstrap.Modal(
+                document.getElementById("messageModal")
+            );
+            modal.show();
+        }
+
     </script>
 
 
@@ -901,7 +945,33 @@
 
     </form>
 </div>
+
+<!-- Global Message Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalTitle">Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="messageModalBody">
+                <!-- Message injected via JS -->
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-primary"
+                        data-bs-dismiss="modal">
+                    OK
+                </button>
+            </div>
+
+        </div>
+    </div>
 </div>
+
 
 </body>
 </html>
